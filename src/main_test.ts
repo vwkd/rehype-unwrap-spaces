@@ -12,8 +12,8 @@ const pipeline = unified()
   .use(rehypeStringify);
 
 Deno.test("one strong, leading", async () => {
-  const input = "foo<strong> bar</strong>";
-  const expected = "foo <strong>bar</strong>";
+  const input = "foo<strong> bar</strong>baz";
+  const expected = "foo <strong>bar</strong>baz";
 
   const actual = (await pipeline
     .process(input)).toString();
@@ -22,8 +22,8 @@ Deno.test("one strong, leading", async () => {
 });
 
 Deno.test("one strong, trailing", async () => {
-  const input = "<strong>foo </strong>bar";
-  const expected = "<strong>foo</strong> bar";
+  const input = "foo<strong>bar </strong>baz";
+  const expected = "foo<strong>bar</strong> baz";
 
   const actual = (await pipeline
     .process(input)).toString();
@@ -41,9 +41,9 @@ Deno.test("one strong, leading and trailing", async () => {
   assertEquals(actual, expected);
 });
 
-Deno.test("two nested strong, leading inner", async () => {
-  const input = "foo<strong><strong> bar</strong></strong>";
-  const expected = "foo <strong><strong>bar</strong></strong>";
+Deno.test("two strong, first leading", async () => {
+  const input = "foo<strong> bar</strong><strong>baz</strong>buz";
+  const expected = "foo <strong>bar</strong><strong>baz</strong>buz";
 
   const actual = (await pipeline
     .process(input)).toString();
@@ -51,9 +51,9 @@ Deno.test("two nested strong, leading inner", async () => {
   assertEquals(actual, expected);
 });
 
-Deno.test("two nested strong, trailing inner", async () => {
-  const input = "<strong><strong>foo </strong></strong>bar";
-  const expected = "<strong><strong>foo</strong></strong> bar";
+Deno.test("two strong, first trailing", async () => {
+  const input = "foo<strong>bar </strong><strong>baz</strong>buz";
+  const expected = "foo<strong>bar</strong> <strong>baz</strong>buz";
 
   const actual = (await pipeline
     .process(input)).toString();
@@ -61,7 +61,117 @@ Deno.test("two nested strong, trailing inner", async () => {
   assertEquals(actual, expected);
 });
 
-Deno.test("two nested strong, leading and trailing inner", async () => {
+Deno.test("two strong, first leading and trailing", async () => {
+  const input = "foo<strong> bar </strong><strong>baz</strong>buz";
+  const expected = "foo <strong>bar</strong> <strong>baz</strong>buz";
+
+  const actual = (await pipeline
+    .process(input)).toString();
+
+  assertEquals(actual, expected);
+});
+
+Deno.test("two strong, second leading", async () => {
+  const input = "foo<strong>bar</strong><strong> baz</strong>buz";
+  const expected = "foo<strong>bar</strong> <strong>baz</strong>buz";
+
+  const actual = (await pipeline
+    .process(input)).toString();
+
+  assertEquals(actual, expected);
+});
+
+Deno.test("two strong, second trailing", async () => {
+  const input = "foo<strong>bar</strong><strong>baz </strong>buz";
+  const expected = "foo<strong>bar</strong><strong>baz</strong> buz";
+
+  const actual = (await pipeline
+    .process(input)).toString();
+
+  assertEquals(actual, expected);
+});
+
+Deno.test("two strong, second leading and trailing", async () => {
+  const input = "foo<strong>bar</strong><strong> baz </strong>buz";
+  const expected = "foo<strong>bar</strong> <strong>baz</strong> buz";
+
+  const actual = (await pipeline
+    .process(input)).toString();
+
+  assertEquals(actual, expected);
+});
+
+Deno.test("two strong, both leading", async () => {
+  const input = "foo<strong> bar</strong><strong> baz</strong>buz";
+  const expected = "foo <strong>bar</strong> <strong>baz</strong>buz";
+
+  const actual = (await pipeline
+    .process(input)).toString();
+
+  assertEquals(actual, expected);
+});
+
+Deno.test("two strong, both trailing", async () => {
+  const input = "foo<strong>bar </strong><strong>baz </strong>buz";
+  const expected = "foo<strong>bar</strong> <strong>baz</strong> buz";
+
+  const actual = (await pipeline
+    .process(input)).toString();
+
+  assertEquals(actual, expected);
+});
+
+Deno.test("two strong, first leading second trailing", async () => {
+  const input = "foo<strong> bar</strong><strong>baz </strong>buz";
+  const expected = "foo <strong>bar</strong><strong>baz</strong> buz";
+
+  const actual = (await pipeline
+    .process(input)).toString();
+
+  assertEquals(actual, expected);
+});
+
+Deno.test("two strong, first trailing second leading", async () => {
+  const input = "foo<strong>bar </strong><strong> baz</strong>buz";
+  const expected = "foo<strong>bar</strong>  <strong>baz</strong>buz";
+
+  const actual = (await pipeline
+    .process(input)).toString();
+
+  assertEquals(actual, expected);
+});
+
+Deno.test("two strong, both leading and trailing", async () => {
+  const input = "foo<strong> bar </strong><strong> baz </strong>buz";
+  const expected = "foo <strong>bar</strong>  <strong>baz</strong> buz";
+
+  const actual = (await pipeline
+    .process(input)).toString();
+
+  assertEquals(actual, expected);
+});
+
+Deno.test("two nested strong, inner leading", async () => {
+  const input = "foo<strong><strong> bar</strong></strong>baz";
+  const expected = "foo <strong><strong>bar</strong></strong>baz";
+
+  const actual = (await pipeline
+    .process(input)).toString();
+
+  assertEquals(actual, expected);
+});
+
+Deno.test("two nested strong, inner trailing", async () => {
+  const input = "foo<strong><strong>bar </strong></strong>baz";
+  const expected = "foo<strong><strong>bar</strong></strong> baz";
+
+  const actual = (await pipeline
+    .process(input)).toString();
+
+  assertEquals(actual, expected);
+});
+
+Deno.test("two nested strong, inner leading and trailing", async () => {
   const input = "foo<strong><strong> bar </strong></strong>baz";
   const expected = "foo <strong><strong>bar</strong></strong> baz";
 
@@ -71,9 +181,9 @@ Deno.test("two nested strong, leading and trailing inner", async () => {
   assertEquals(actual, expected);
 });
 
-Deno.test("two nested strong, leading outer", async () => {
-  const input = "foo<strong> <strong>bar</strong></strong>";
-  const expected = "foo <strong><strong>bar</strong></strong>";
+Deno.test("two nested strong, outer leading", async () => {
+  const input = "foo<strong> <strong>bar</strong></strong>baz";
+  const expected = "foo <strong><strong>bar</strong></strong>baz";
 
   const actual = (await pipeline
     .process(input)).toString();
@@ -81,9 +191,9 @@ Deno.test("two nested strong, leading outer", async () => {
   assertEquals(actual, expected);
 });
 
-Deno.test("two nested strong, trailing outer", async () => {
-  const input = "<strong><strong>foo</strong> </strong>bar";
-  const expected = "<strong><strong>foo</strong></strong> bar";
+Deno.test("two nested strong, outer trailing", async () => {
+  const input = "foo<strong><strong>bar</strong> </strong>baz";
+  const expected = "foo<strong><strong>bar</strong></strong> baz";
 
   const actual = (await pipeline
     .process(input)).toString();
@@ -91,7 +201,7 @@ Deno.test("two nested strong, trailing outer", async () => {
   assertEquals(actual, expected);
 });
 
-Deno.test("two nested strong, leading and trailing outer", async () => {
+Deno.test("two nested strong, outer leading and trailing", async () => {
   const input = "foo<strong> <strong>bar</strong> </strong>baz";
   const expected = "foo <strong><strong>bar</strong></strong> baz";
 
@@ -101,9 +211,9 @@ Deno.test("two nested strong, leading and trailing outer", async () => {
   assertEquals(actual, expected);
 });
 
-Deno.test("two chained strong, both leading", async () => {
-  const input = "foo<strong> bar</strong><strong> baz</strong>";
-  const expected = "foo <strong>bar</strong> <strong>baz</strong>";
+Deno.test("two nested strong, both leading", async () => {
+  const input = "foo<strong> <strong> bar</strong></strong>baz";
+  const expected = "foo  <strong><strong>bar</strong></strong>baz";
 
   const actual = (await pipeline
     .process(input)).toString();
@@ -111,9 +221,9 @@ Deno.test("two chained strong, both leading", async () => {
   assertEquals(actual, expected);
 });
 
-Deno.test("two chained strong, both trailing", async () => {
-  const input = "<strong>foo </strong><strong>bar </strong>baz";
-  const expected = "<strong>foo</strong> <strong>bar</strong> baz";
+Deno.test("two nested strong, both trailing", async () => {
+  const input = "foo<strong><strong>bar </strong> </strong>baz";
+  const expected = "foo<strong><strong>bar</strong></strong>  baz";
 
   const actual = (await pipeline
     .process(input)).toString();
@@ -121,9 +231,29 @@ Deno.test("two chained strong, both trailing", async () => {
   assertEquals(actual, expected);
 });
 
-Deno.test("two chained strong, both leading and trailing", async () => {
-  const input = "foo<strong> bar </strong><strong> baz </strong>buz";
-  const expected = "foo <strong>bar</strong>  <strong>baz</strong> buz";
+Deno.test("two nested strong, inner leading and outer trailing", async () => {
+  const input = "foo<strong><strong> bar</strong> </strong>baz";
+  const expected = "foo <strong><strong>bar</strong></strong> baz";
+
+  const actual = (await pipeline
+    .process(input)).toString();
+
+  assertEquals(actual, expected);
+});
+
+Deno.test("two nested strong, inner trailing and outer leading", async () => {
+  const input = "foo<strong> <strong>bar </strong></strong>baz";
+  const expected = "foo <strong><strong>bar</strong></strong> baz";
+
+  const actual = (await pipeline
+    .process(input)).toString();
+
+  assertEquals(actual, expected);
+});
+
+Deno.test("two nested strong, both leading and trailing", async () => {
+  const input = "foo<strong> <strong> bar </strong> </strong>baz";
+  const expected = "foo  <strong><strong>bar</strong></strong>  baz";
 
   const actual = (await pipeline
     .process(input)).toString();
@@ -141,7 +271,7 @@ Deno.test("one a, leading", async () => {
   assertEquals(actual, expected);
 });
 
-Deno.test("two chained a, first trailing", async () => {
+Deno.test("two a, first trailing", async () => {
   const input = "<a>foo </a><a>bar</a>";
   const expected = "<a>foo</a> <a>bar</a>";
 
@@ -151,9 +281,39 @@ Deno.test("two chained a, first trailing", async () => {
   assertEquals(actual, expected);
 });
 
-Deno.test("one em in a, leading outer", async () => {
+Deno.test("one em nested in a, outer leading", async () => {
   const input = "<a> <em>foo</em></a>";
   const expected = " <a><em>foo</em></a>";
+
+  const actual = (await pipeline
+    .process(input)).toString();
+
+  assertEquals(actual, expected);
+});
+
+Deno.test("outside leading", async () => {
+  const input = " <strong>foo</strong>";
+  const expected = " <strong>foo</strong>";
+
+  const actual = (await pipeline
+    .process(input)).toString();
+
+  assertEquals(actual, expected);
+});
+
+Deno.test("outside trailing", async () => {
+  const input = "<strong>foo</strong> ";
+  const expected = "<strong>foo</strong> ";
+
+  const actual = (await pipeline
+    .process(input)).toString();
+
+  assertEquals(actual, expected);
+});
+
+Deno.test("outside in between", async () => {
+  const input = "<strong>foo</strong> <strong>bar</strong>";
+  const expected = "<strong>foo</strong> <strong>bar</strong>";
 
   const actual = (await pipeline
     .process(input)).toString();
